@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Chat Page</title>
+    <script type="text/javascript">
+      // Initialize Firebase
+      var config = {
+        apiKey: "YOUR_API_KEY",
+        authDomain: "YOUR_AUTH_DOMAIN",
+        databaseURL: "YOUR_DATABASE_URL",
+        projectId: "YOUR_PROJECT_ID",
+        storageBucket: "YOUR_STORAGE_BUCKET",
+        messagingSenderId: "YOUR_SENDER_ID"
+      };
+      firebase.initializeApp(config);
+      
+      var messagesRef = firebase.database().ref('messages');
+      
+      function submitForm(e) {
+        e.preventDefault();
+        
+        // Get values from form
+        var name = document.getElementById('name').value;
+        var message = document.getElementById('message').value;
+        
+        // Save message to Firebase
+        var newMessageRef = messagesRef.push();
+        newMessageRef.set({
+          name: name,
+          message: message
+        });
+        
+        // Clear form
+        document.getElementById('chatForm').reset();
+      }
+      
+      // Listen for new messages
+      messagesRef.on('child_added', function(data) {
+        var message = data.val();
+        displayMessage(message.name, message.message);
+      });
+      
+      function displayMessage(name, message) {
+        var messagesList = document.getElementById('messages');
+        var newMessage = document.createElement('li');
+        newMessage.innerHTML = "<b>" + name + "</b>: " + message;
+        messagesList.appendChild(newMessage);
+      }
+    </script>
+  </head>
+  <body>
+    <form id="chatForm" onsubmit="submitForm(event)">
+      <label for="name">Name:</label>
+      <input type="text" id="name" required>
+      
+      <label for="message">Message:</label>
+      <input type="text" id="message" required>
+      
+      <input type="submit" value="Send">
+    </form>
+    
+    <ul id="messages"></ul>
+  </body>
+</html>
